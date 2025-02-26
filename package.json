@@ -1,0 +1,26 @@
+{
+  "name": "stack-buddies",
+  "version": "1.0.0",
+  "description": "A Social platform for developers to connect with Other Developers",
+  "keywords": [
+    "Node",
+    "Express",
+    "MongoDB"
+  ],
+  "license": "ISC",
+  "author": "Diwakar Giri",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/app.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.10.2",
+    "nodemon": "^3.1.9",
+    "validator": "^13.12.0"
+  }
+}
