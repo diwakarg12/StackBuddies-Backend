@@ -6,13 +6,18 @@ const authRouter = require('./routers/authRouter');
 const profileRouter = require('./routers/profileRouter');
 const connectionRouter = require('./routers/connectionRouter');
 const userRouter = require('./routers/userRouter');
+const cors = require('cors');
 
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
+app.use(cors(
+    origin = 'http://localhost:5173/',
+    Credential = true
+))
 
 app.use('/auth', authRouter);
 app.use('/profile', profileRouter);
