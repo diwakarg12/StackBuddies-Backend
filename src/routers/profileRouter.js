@@ -20,7 +20,7 @@ profileRouter.get('/view', userAuth, async (req, res) => {
     }
 });
 
-profileRouter.post('/edit', userAuth, async (req, res) => {
+profileRouter.patch('/edit', userAuth, async (req, res) => {
     try {
         updateValidation(req.body)
         const currentUser = req.user;
@@ -36,7 +36,7 @@ profileRouter.post('/edit', userAuth, async (req, res) => {
     }
 })
 
-profileRouter.post('/change-password', userAuth, async (req, res) => {
+profileRouter.patch('/change-password', userAuth, async (req, res) => {
     try {
         const currentUser = req.user;
         const { password } = req.body;

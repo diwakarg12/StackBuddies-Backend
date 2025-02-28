@@ -5,7 +5,7 @@ const ConnectionRequest = require('../models/connectionRequest.model')
 
 const connectionRouter = express.Router();
 
-connectionRouter.post('send/:status/:toUserId', userAuth, async (req, res) => {
+connectionRouter.post('/send/:status/:toUserId', userAuth, async (req, res) => {
     try {
         const fromUserId = req.user._id;
         const toUserId = req.params.toUserId;
@@ -68,11 +68,10 @@ connectionRouter.post('/review/:status/:fromUserId', userAuth, async (req, res) 
         const reviewRequest = await ConnectionRequest.findOne({
             fromUserId: fromUserId,
             toUserId: toUserId,
-            status: status,
-        })
+        });
 
         if (!reviewRequest) {
-            throw new Error("No Request Request Found!");
+            throw new Error("No Connection Request Found!");
         }
 
         reviewRequest.status = status;
@@ -85,7 +84,7 @@ connectionRouter.post('/review/:status/:fromUserId', userAuth, async (req, res) 
     }
 });
 
-connectionRouter.post('')
+// connectionRouter.post('')
 
 
 

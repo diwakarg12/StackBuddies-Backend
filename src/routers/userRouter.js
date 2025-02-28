@@ -41,7 +41,6 @@ userRouter.get('/connections', userAuth, async (req, res) => {
 
 userRouter.get('/reviewReceivedRequest', userAuth, async (req, res) => {
     try {
-
         const toUserId = req.user._id;
         const status = 'interested';
 
@@ -56,26 +55,28 @@ userRouter.get('/reviewReceivedRequest', userAuth, async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Error', error: error.message });
     }
-
-    userAuth.get('/reviewSentRequests', userAuth, async (req, res) => {
-        try {
-
-            const fromUserId = req.user._id;
-            status: 'inteterested'
-
-            const allSentRequests = await ConnectionRequest.find({ fromUserId: fromUserId }).populate('toUserId', USER_SAFE_DATA);
-
-            if (!allSentRequests) {
-                throw new Error("No Requst Found");
-            }
-
-            res, status(200).json({ message: `${req.user.firstName}, You have sent ${AllSentRequest.length} Connection Requests`, SentRequest: allSentRequests })
-
-        } catch (error) {
-            res.status(500).json({ message: 'Error', error: error.message });
-        }
-    })
 });
+
+userRouter.get('/reviewSentRequests', userAuth, async (req, res) => {
+    try {
+
+        const fromUserId = req.user._id;
+        const status = 'inteterested';
+
+        const allSentRequests = await ConnectionRequest.find(
+            { fromUserId: fromUserId, status: status }
+        ).populate('toUserId', USER_SAFE_DATA);
+
+        if (!allSentRequests) {
+            throw new Error("No Requst Found");
+        }
+
+        res.status(200).json({ message: `${req.user.firstName}, You have ${allSentRequests.length} sent Connection Requests`, SentRequest: allSentRequests })
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error', error: error.message });
+    }
+})
 
 userRouter.get('/feed', userAuth, async (req, res) => {
     try {
@@ -95,7 +96,7 @@ userRouter.get('/feed', userAuth, async (req, res) => {
 
         const hideUsers = new Set();
 
-        connectionRequests.array.forEach(req => {
+        connectionRequests.forEach(req => {
             hideUsers.add(req.fromUserId.toString());
             hideUsers.add(req.toUserId.toString())
         });

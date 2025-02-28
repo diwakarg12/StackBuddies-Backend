@@ -6,8 +6,8 @@ const signupValidation = (data) => {
 
     if (!validator.isLength(firstName, { min: 4, max: 20 })) {
         throw new Error("FirstName length should be more than 4 and less than 20");
-    } else if (!validator.isLength(lastName, { min: 4, max: 20 })) {
-        throw new Error("lastName length should be between 4 to 20 character");
+    } else if (!validator.isLength(lastName, { max: 20 })) {
+        throw new Error("lastName length should be less than 20");
     } else if (!validator.isEmail(email)) {
         throw new Error("Email is not Valid");
     } else if (!validator.isStrongPassword(password)) {
@@ -32,15 +32,15 @@ const updateValidation = (data) => {
     const isUpdatable = Object.keys(data).every(req => updatable.includes(req))
     if (!isUpdatable) {
         throw new Error("Invalid Update Request");
-    } else if (data.firstName && !validator.isLength(data.firstName, { min: 4, max: 20 })) {
-        throw new Error("firstName should be between 4 to 20 Character");
-    } else if (data.lastName && !validator.isLength(data.lastName, { min: 4, max: 20 })) {
-        throw new Error("firstName should be between 4 to 20 Character");
-    } else if (data.age && data.age > 18) {
+    } else if (data.firstName && !validator.isLength(data.firstName, { max: 20 })) {
+        throw new Error("firstName should be more than 20 Character");
+    } else if (data.lastName && !validator.isLength(data.lastName, { max: 20 })) {
+        throw new Error("firstName should be more than 20 Character");
+    } else if (data.age && !validator.isInt(data.age.toString(), { min: 18 })) {
         throw new Error("Age should be more than 18 Years");
     } else if (data.about && !validator.isLength(data.about, { min: 20, max: 200 })) {
         throw new Error("About should be between 20 to 200 Character");
-    } else if (data.skills && !validator.isLength(data.skills, { min: 1, max: 10 })) {
+    } else if (data.skills && data.skills.length > 10) {
         throw new Error("Skills Should be less than 10");
     } else if (data.profileUrl && !validator.isURL(data.profileUrl)) {
         throw new Error("Invalid profile URL");
