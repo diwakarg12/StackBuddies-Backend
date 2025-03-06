@@ -7,7 +7,7 @@ const userAuth = async (req, res, next) => {
         const token = req.cookies.token;
 
         if (!token) {
-            throw new Error("No token Found, Please Login again");
+            return res.status(401).json({ message: "No token Found, Please Login again" })
         }
 
         const decodedData = jwt.verify(token, "Diwakar@123");
@@ -15,7 +15,7 @@ const userAuth = async (req, res, next) => {
 
         const user = await User.findById(_id);
         if (!user) {
-            throw new Error("NO User Found");
+            return res.status(404).json({ message: "No user Found" })
         }
 
         req.user = user;

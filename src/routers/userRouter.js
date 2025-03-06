@@ -6,7 +6,6 @@ const ConnectionRequest = require('../models/connectionRequest.model');
 const userRouter = express.Router();
 const USER_SAFE_DATA = ["firstName", "lastName", "gender", "age", "profile", "skills", "about"];
 
-
 userRouter.get('/connections', userAuth, async (req, res) => {
     try {
         const toUserId = req.user._id;
@@ -76,12 +75,17 @@ userRouter.get('/reviewSentRequests', userAuth, async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Error', error: error.message });
     }
-})
+});
 
 userRouter.get('/feed', userAuth, async (req, res) => {
     try {
 
         const loggedInUser = req.user;
+
+        // if (!req.user) {
+        //     const token = res.cookie('token', null, { expires: new Date(Date.now()) });
+        //     return res.status(401).json({ message: 'JWT Expired, Please Login Again' })
+        // }
 
         const page = req.params.page;
         let limit = req.params.limit;

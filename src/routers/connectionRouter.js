@@ -11,6 +11,8 @@ connectionRouter.post('/send/:status/:toUserId', userAuth, async (req, res) => {
         const toUserId = req.params.toUserId;
         const status = req.params.status;
 
+        console.log(`Received request from user ${fromUserId} to ${toUserId} with status: ${status}`);
+
         //if Status is allowed or not
         const allowedStatus = ["interested", "ignored"].includes(status);
         if (!allowedStatus) {
@@ -47,7 +49,7 @@ connectionRouter.post('/send/:status/:toUserId', userAuth, async (req, res) => {
 
         await newConnection.save();
 
-        res.status(200).json({ message: "Connection Created Successfully", connection: newConnection })
+        res.status(200).json({ message: "Connection Created Successfully", connectionRequest: newConnection })
 
     } catch (error) {
         res.status(500).json({ message: "Error", error: error.message });

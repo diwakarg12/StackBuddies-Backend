@@ -14,7 +14,7 @@ authRouter.post('/signup', async (req, res) => {
 
         const existedUser = await User.findOne({ email: email });
         if (existedUser) {
-            throw new Error("User Already Existed");
+            return res.status(400).json({ message: "User Already Existed" })
         }
 
         const passwordHash = await bcrypt.hash(password, 10)
@@ -41,12 +41,12 @@ authRouter.post('/login', async (req, res) => {
 
         const user = await User.findOne({ email: email });
         if (!user) {
-            throw new Error("Invalid Credential");
+            return res.status(404).json({ message: "Invalid Credentials" })
         }
 
         const pass = await bcrypt.compare(password, user.password);
         if (!pass) {
-            throw new Error("Invalid Credential");
+            return res.status(404).json({ message: "Invalid Credentials" })
         }
 
         const token = jwt.sign({ _id: user._id }, "Diwakar@123", { expiresIn: '1d' })
@@ -56,7 +56,7 @@ authRouter.post('/login', async (req, res) => {
         }
 
         res.cookie('token', token);
-        res.status(200).json({ message: "Login Successfull" })
+        res.status(200).json({ message: "Login Successfull", user: user })
 
     } catch (error) {
         res.status(500).json({ message: "Error", error: error.message });
@@ -65,7 +65,7 @@ authRouter.post('/login', async (req, res) => {
 
 authRouter.post('/logout', async (req, res) => {
     const token = res.cookie('token', null, { expires: new Date(Date.now()) });
-    res.status(200).json({ message: "user LoggedOut Successfully" })
+    res.status(200).json({ message: "user LoggedOut Successfully", user: null })
 })
 
 module.exports = authRouter;
