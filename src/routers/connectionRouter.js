@@ -11,25 +11,20 @@ connectionRouter.post('/send/:status/:toUserId', userAuth, async (req, res) => {
         const toUserId = req.params.toUserId;
         const status = req.params.status;
 
-        console.log(`Received request from user ${fromUserId} to ${toUserId} with status: ${status}`);
-
-        //if Status is allowed or not
         const allowedStatus = ["interested", "ignored"].includes(status);
         if (!allowedStatus) {
             throw new Error("Invalid Status", status);
         }
 
-        //If user sends request to itself
         if (fromUserId.toString() === toUserId.toString()) {
             throw new Error("You cannot send Connection Request ot Yourself!");
         }
 
-        //If User existed in the DB or not
         const user = await User.findById(toUserId);
         if (!user) {
             throw new Error("Invalid toUserId");
         }
-        //Connection Already existed or not
+
         const existingConnection = await ConnectionRequest.findOne({
             $or: [
                 { fromUserId: fromUserId, toUserId: toUserId },
@@ -54,7 +49,7 @@ connectionRouter.post('/send/:status/:toUserId', userAuth, async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error", error: error.message });
     }
-})
+});
 
 connectionRouter.post('/review/:status/:fromUserId', userAuth, async (req, res) => {
     try {
@@ -76,6 +71,10 @@ connectionRouter.post('/review/:status/:fromUserId', userAuth, async (req, res) 
             throw new Error("No Connection Request Found!");
         }
 
+        if (!reviewRequest.status === 'interested') {
+            throw new Error("Invalid Connection Request");
+        }
+
         reviewRequest.status = status;
         await reviewRequest.save();
 
@@ -85,9 +84,5 @@ connectionRouter.post('/review/:status/:fromUserId', userAuth, async (req, res) 
         res.status(500).json({ message: "Error", error: error.message });
     }
 });
-
-// connectionRouter.post('')
-
-
 
 module.exports = connectionRouter;

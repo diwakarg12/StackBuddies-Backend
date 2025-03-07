@@ -4,7 +4,7 @@ const userAuth = require('../middlewares/userAuth.middleware');
 const ConnectionRequest = require('../models/connectionRequest.model');
 
 const userRouter = express.Router();
-const USER_SAFE_DATA = ["firstName", "lastName", "gender", "age", "profile", "skills", "about"];
+const USER_SAFE_DATA = ["firstName", "lastName", "gender", "age", "profileUrl", "skills", "about"];
 
 userRouter.get('/connections', userAuth, async (req, res) => {
     try {
@@ -19,7 +19,7 @@ userRouter.get('/connections', userAuth, async (req, res) => {
             ]
         }).populate("fromUserId", USER_SAFE_DATA).populate("toUserId", USER_SAFE_DATA)
 
-        if (!connections) {
+        if (!connections || connections.length == 0) {
             throw new Error("No Connection Found");
         }
 
@@ -43,13 +43,13 @@ userRouter.get('/reviewReceivedRequest', userAuth, async (req, res) => {
         const toUserId = req.user._id;
         const status = 'interested';
 
-        const connections = await ConnectionRequest.find({ toUserId: toUserId, status: status }).populate('fromUserId', USER_SAFE_DATA);;
+        const allReceivedRequests = await ConnectionRequest.find({ toUserId: toUserId, status: status }).populate('fromUserId', USER_SAFE_DATA);;
 
-        if (!connections) {
-            throw new Error("NO Connection Request Found");
+        if (!allReceivedRequests || allReceivedRequests.length == 0) {
+            throw new Error("No Connection Request Received");
         }
 
-        res.status(200).json({ message: `${req.user.firstName}, You have Received ${connections.length} Connection Requests`, connections: connections })
+        res.status(200).json({ message: `${req.user.firstName}, You have Received ${allReceivedRequests.length} Connection Requests`, receivedRequests: allReceivedRequests })
 
     } catch (error) {
         res.status(500).json({ message: 'Error', error: error.message });
@@ -60,17 +60,17 @@ userRouter.get('/reviewSentRequests', userAuth, async (req, res) => {
     try {
 
         const fromUserId = req.user._id;
-        const status = 'inteterested';
+        const status = 'interested';
 
         const allSentRequests = await ConnectionRequest.find(
             { fromUserId: fromUserId, status: status }
         ).populate('toUserId', USER_SAFE_DATA);
 
-        if (!allSentRequests) {
-            throw new Error("No Requst Found");
+        if (!allSentRequests || allSentRequests.length == 0) {
+            throw new Error("No Connection Requst Sent");
         }
 
-        res.status(200).json({ message: `${req.user.firstName}, You have ${allSentRequests.length} sent Connection Requests`, SentRequest: allSentRequests })
+        res.status(200).json({ message: `${req.user.firstName}, You have ${allSentRequests.length} sent Connection Requests`, sentRequests: allSentRequests })
 
     } catch (error) {
         res.status(500).json({ message: 'Error', error: error.message });
@@ -81,11 +81,6 @@ userRouter.get('/feed', userAuth, async (req, res) => {
     try {
 
         const loggedInUser = req.user;
-
-        // if (!req.user) {
-        //     const token = res.cookie('token', null, { expires: new Date(Date.now()) });
-        //     return res.status(401).json({ message: 'JWT Expired, Please Login Again' })
-        // }
 
         const page = req.params.page;
         let limit = req.params.limit;
@@ -112,7 +107,7 @@ userRouter.get('/feed', userAuth, async (req, res) => {
             ]
         }).select(USER_SAFE_DATA).skip(skip).limit(limit);
 
-        res.status(200).json({ message: `${loggedInUser.firstName}, You have ${user.length} users in Your Feed`, user: user })
+        res.status(200).json({ message: `${loggedInUser.firstName}, You have ${user.length} users in Your Feed`, feed: user })
 
     } catch (error) {
         res.status(500).json({ message: 'Error', error: error.message });

@@ -47,13 +47,14 @@ profileRouter.patch('/change-password', userAuth, async (req, res) => {
         currentUser.password = passwordHash;
         await currentUser.save();
 
-        res.status(200).json({ message: `${currentUser.firstName}, Your Password has been changed successfully!` })
+        res.status(200).json({ message: `${currentUser.firstName}, Your Password has been changed successfully!`, user: currentUser })
 
     } catch (error) {
         res.status(500).json({ message: "Error", error: error.message });
     }
 })
 
+//We need to configure and add forgot password logic Here
 profileRouter.post('/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;

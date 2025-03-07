@@ -14,7 +14,7 @@ authRouter.post('/signup', async (req, res) => {
 
         const existedUser = await User.findOne({ email: email });
         if (existedUser) {
-            return res.status(400).json({ message: "User Already Existed" })
+            return res.status(400).json({ message: "User Already Existed, Please Login" })
         }
 
         const passwordHash = await bcrypt.hash(password, 10)
@@ -27,11 +27,19 @@ authRouter.post('/signup', async (req, res) => {
         });
 
         await user.save();
+
+        const token = jwt.sign({ _id: user._id }, "Diwakar@123", { expiresIn: '1d' })
+        console.log('Token', token)
+        if (!token) {
+            throw new Error("Error while Generating Token");
+        }
+
+        res.cookie('token', token);
+
         res.status(200).json({ message: "User Created SuccessFully", user: user })
     } catch (error) {
         res.status(200).json({ message: "Error", error: error.message });
     }
-
 })
 
 authRouter.post('/login', async (req, res) => {
