@@ -2,8 +2,8 @@ const express = require('express');
 const validator = require('validator');
 
 const signupValidation = (data) => {
-    const { firstName, lastName, email, password } = data;
-
+    const { firstName, lastName, email, password, age, gender } = data;
+    const allowedGender = ['male', 'female', 'other'];
     if (!validator.isLength(firstName, { min: 3, max: 20 })) {
         throw new Error("FirstName should be between 3 to 20 Characters");
     } else if (!validator.isLength(lastName, { min: 3, max: 20 })) {
@@ -12,6 +12,10 @@ const signupValidation = (data) => {
         throw new Error("Email is not Valid");
     } else if (!validator.isStrongPassword(password)) {
         throw new Error("password is not Valid");
+    } else if (!validator.isInt(data.age.toString(), { min: 18 })) {
+        throw new Error("Use should be more than 18 yrs old");
+    } else if (!allowedGender.includes(gender)) {
+        throw new Error("Gender is not Valid");
     }
 }
 
@@ -24,6 +28,12 @@ const loginValidation = (data) => {
     } else if (!validator.isStrongPassword(password)) {
         throw new Error("Password is not Valid");
     }
+}
+
+function isValidImageUrlOrBase64(str) {
+    const isImageUrl = validator.isURL(str, { require_protocol: true }) && /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(str);
+    const isBase64 = /^data:image\/(png|jpeg|jpg|gif|bmp|webp);base64,/i.test(str);
+    return isImageUrl || isBase64;
 }
 
 const updateValidation = (data) => {
@@ -42,7 +52,7 @@ const updateValidation = (data) => {
         throw new Error("About should be between 20 to 400 Character");
     } else if (data.skills && data.skills.length > 10) {
         throw new Error("Skills Should be less than 10");
-    } else if (data.profileUrl && !validator.isURL(data.profileUrl)) {
+    } else if (data.profileUrl && !isValidImageUrlOrBase64(data.profileUrl)) {
         throw new Error("Invalid profile URL");
     }
 }
