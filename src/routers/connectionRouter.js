@@ -1,7 +1,8 @@
 const express = require('express');
 const User = require('../models/user.model');
 const userAuth = require('../middlewares/userAuth.middleware');
-const ConnectionRequest = require('../models/connectionRequest.model')
+const ConnectionRequest = require('../models/connectionRequest.model');
+const { getConnectedUsers, getIO } = require('../socket/socket.server');
 
 const connectionRouter = express.Router();
 
@@ -53,6 +54,7 @@ connectionRouter.post('/send/:status/:toUserId', userAuth, async (req, res) => {
 
 connectionRouter.post('/review/:status/:fromUserId', userAuth, async (req, res) => {
     try {
+        const currentUser = req.user;
         const toUserId = req.user._id;
         const fromUserId = req.params.fromUserId;
         const status = req.params.status;
@@ -60,6 +62,11 @@ connectionRouter.post('/review/:status/:fromUserId', userAuth, async (req, res) 
         const allowedStatus = ["accepted", "rejected"].includes(status);
         if (!allowedStatus) {
             throw new Error("Invalid Status", status);
+        }
+
+        const fromUser = await User.findById(fromUserId);
+        if (!fromUser) {
+            throw new Error('Connection is not Valid as the Sender is not Present in the Database')
         }
 
         const reviewRequest = await ConnectionRequest.findOne({
@@ -78,7 +85,7 @@ connectionRouter.post('/review/:status/:fromUserId', userAuth, async (req, res) 
         reviewRequest.status = status;
         await reviewRequest.save();
 
-        res.status(200).json({ message: `${req.user.firstName}, You have ${status} the Request!` })
+        res.status(200).json({ message: `${req.user.firstName}, You have ${status} the Request!`, reviewRequest: reviewRequest })
 
     } catch (error) {
         res.status(500).json({ message: "Error", error: error.message });

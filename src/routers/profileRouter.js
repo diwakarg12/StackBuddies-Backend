@@ -3,6 +3,7 @@ const userAuth = require('../middlewares/userAuth.middleware');
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const { updateValidation, updatePasswordValidation } = require('../Utils/apiValidation');
+const cloudinary = require('../config/cloudinary')
 
 const profileRouter = express.Router();
 
@@ -11,7 +12,7 @@ profileRouter.get('/view', userAuth, async (req, res) => {
         const loggedInUser = req.user;
 
         if (!loggedInUser) {
-            throw new Error("Unable to Get user Data");
+            return res.status(404).json({ message: "Unable to Get user Data" })
         }
 
         res.status(200).json({ message: "User Data Fetched", user: loggedInUser })
@@ -22,8 +23,19 @@ profileRouter.get('/view', userAuth, async (req, res) => {
 
 profileRouter.patch('/edit', userAuth, async (req, res) => {
     try {
+
         updateValidation(req.body)
         const currentUser = req.user;
+        const { profileUrl } = req.body
+        if (profileUrl && profileUrl.startsWith("data:image")) {
+            try {
+                const uploadResponse = await cloudinary.uploader.upload(profileUrl);
+                req.body.profileUrl = uploadResponse.secure_url
+                console.log('public url', req.body.profileUrl)
+            } catch (error) {
+                return res.status(400).json({ message: "Error while uploading the file" })
+            }
+        }
         console.log(currentUser);
         Object.keys(req.body).forEach(key => currentUser[key] = req.body[key]);
         console.log(currentUser);

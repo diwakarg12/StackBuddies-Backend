@@ -10,7 +10,7 @@ const authRouter = express.Router();
 authRouter.post('/signup', async (req, res) => {
     try {
         signupValidation(req.body);
-        const { firstName, lastName, email, password } = req.body;
+        const { firstName, lastName, email, password, age, gender } = req.body;
 
         const existedUser = await User.findOne({ email: email });
         if (existedUser) {
@@ -23,7 +23,9 @@ authRouter.post('/signup', async (req, res) => {
             firstName: firstName,
             lastName: lastName,
             email: email,
-            password: passwordHash
+            password: passwordHash,
+            age: age,
+            gender: gender
         });
 
         await user.save();
@@ -63,7 +65,11 @@ authRouter.post('/login', async (req, res) => {
             throw new Error("Error while Generating Token");
         }
 
-        res.cookie('token', token);
+        // res.cookie('token', token);
+        res.cookie('token', token, {
+            httpOnly: true,
+            sameSite: 'Strict',
+        });
         res.status(200).json({ message: "Login Successfull", user: user })
 
     } catch (error) {

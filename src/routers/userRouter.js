@@ -20,11 +20,11 @@ userRouter.get('/connections', userAuth, async (req, res) => {
         }).populate("fromUserId", USER_SAFE_DATA).populate("toUserId", USER_SAFE_DATA)
 
         if (!connections || connections.length == 0) {
-            throw new Error("No Connection Found");
+            return res.status(404).json({ message: "No Connection Found" })
         }
 
         const allConnetions = connections.map(conn => {
-            if (conn.fromUserId.toString() === req.user._id.toString()) {
+            if (conn.fromUserId._id.toString() === req.user._id.toString()) {
                 return conn.toUserId;
             } else {
                 return conn.fromUserId;
@@ -41,12 +41,13 @@ userRouter.get('/connections', userAuth, async (req, res) => {
 userRouter.get('/reviewReceivedRequest', userAuth, async (req, res) => {
     try {
         const toUserId = req.user._id;
+        console.log('req.user._id', req.user._id)
         const status = 'interested';
 
-        const allReceivedRequests = await ConnectionRequest.find({ toUserId: toUserId, status: status }).populate('fromUserId', USER_SAFE_DATA);;
+        const allReceivedRequests = await ConnectionRequest.find({ toUserId: toUserId, status: status }).populate('fromUserId', USER_SAFE_DATA);
 
-        if (!allReceivedRequests || allReceivedRequests.length == 0) {
-            throw new Error("No Connection Request Received");
+        if (!allReceivedRequests || allReceivedRequests.length === 0) {
+            return res.status(404).json({ message: 'No Connection Request received' });
         }
 
         res.status(200).json({ message: `${req.user.firstName}, You have Received ${allReceivedRequests.length} Connection Requests`, receivedRequests: allReceivedRequests })
@@ -66,8 +67,8 @@ userRouter.get('/reviewSentRequests', userAuth, async (req, res) => {
             { fromUserId: fromUserId, status: status }
         ).populate('toUserId', USER_SAFE_DATA);
 
-        if (!allSentRequests || allSentRequests.length == 0) {
-            throw new Error("No Connection Requst Sent");
+        if (!allSentRequests || allSentRequests.length === 0) {
+            return res.status(404).json({ message: 'No Connection Request sent' });
         }
 
         res.status(200).json({ message: `${req.user.firstName}, You have ${allSentRequests.length} sent Connection Requests`, sentRequests: allSentRequests })

@@ -5,6 +5,7 @@ const userAuth = async (req, res, next) => {
     try {
 
         const token = req.cookies.token;
+        console.log('Tttoken', token)
 
         if (!token) {
             return res.status(401).json({ message: "No token Found, Please Login again" })
